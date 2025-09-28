@@ -2,11 +2,12 @@
 	double linked list reverse
 	This problem requires you to reverse a doubly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
+use std::mem::swap;
 use std::ptr::NonNull;
-use std::vec::*;
+
 
 #[derive(Debug)]
 struct Node<T> {
@@ -14,6 +15,7 @@ struct Node<T> {
     next: Option<NonNull<Node<T>>>,
     prev: Option<NonNull<Node<T>>>,
 }
+
 
 impl<T> Node<T> {
     fn new(t: T) -> Node<T> {
@@ -24,6 +26,8 @@ impl<T> Node<T> {
         }
     }
 }
+
+
 #[derive(Debug)]
 struct LinkedList<T> {
     length: u32,
@@ -31,11 +35,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
+
 impl<T> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
+
 
 impl<T> LinkedList<T> {
     pub fn new() -> Self {
@@ -72,15 +78,24 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn reverse(&mut self){
-		// TODO
+
+	pub fn reverse(&mut self) {
+        swap(&mut self.start, &mut self.end);
+        let mut current = self.start;
+        while let Some(node_ptr) = current{
+            unsafe {
+                let node = node_ptr.as_ptr();
+                swap(&mut (*node).next, &mut (*node).prev);
+                current = (*node).next;
+            }
+        }
 	}
 }
 
+
 impl<T> Display for LinkedList<T>
 where
-    T: Display,
-{
+    T: Display {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.start {
             Some(node) => write!(f, "{}", unsafe { node.as_ref() }),
@@ -89,10 +104,10 @@ where
     }
 }
 
+
 impl<T> Display for Node<T>
 where
-    T: Display,
-{
+    T: Display {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.next {
             Some(node) => write!(f, "{}, {}", self.val, unsafe { node.as_ref() }),
@@ -100,6 +115,7 @@ where
         }
     }
 }
+
 
 #[cfg(test)]
 mod tests {

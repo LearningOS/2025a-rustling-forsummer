@@ -3,12 +3,14 @@
 	This question requires you to use a stack to achieve a bracket match
 */
 
-// I AM NOT DONE
+
 #[derive(Debug)]
 struct Stack<T> {
 	size: usize,
 	data: Vec<T>,
 }
+
+
 impl<T> Stack<T> {
 	fn new() -> Self {
 		Self {
@@ -16,39 +18,51 @@ impl<T> Stack<T> {
 			data: Vec::new(),
 		}
 	}
+
 	fn is_empty(&self) -> bool {
 		0 == self.size
 	}
+
 	fn len(&self) -> usize {
 		self.size
 	}
+
 	fn clear(&mut self) {
 		self.size = 0;
 		self.data.clear();
 	}
+
 	fn push(&mut self, val: T) {
 		self.data.push(val);
 		self.size += 1;
 	}
+
 	fn pop(&mut self) -> Option<T> {
-		// TODO
-		None
+		if self.size == 0 {
+			return None
+		}
+		self.size = self.size - 1;
+		self.data.pop()
 	}
+
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
 			return None;
 		}
 		self.data.get(self.size - 1)
 	}
+
 	fn peek_mut(&mut self) -> Option<&mut T> {
 		if 0 == self.size {
 			return None;
 		}
 		self.data.get_mut(self.size - 1)
 	}
+
 	fn into_iter(self) -> IntoIter<T> {
 		IntoIter(self)
 	}
+
 	fn iter(&self) -> Iter<T> {
 		let mut iterator = Iter { 
 			stack: Vec::new() 
@@ -58,6 +72,7 @@ impl<T> Stack<T> {
 		}
 		iterator
 	}
+
 	fn iter_mut(&mut self) -> IterMut<T> {
 		let mut iterator = IterMut { 
 			stack: Vec::new() 
@@ -68,7 +83,11 @@ impl<T> Stack<T> {
 		iterator
 	}
 }
+
+
 struct IntoIter<T>(Stack<T>);
+
+
 impl<T: Clone> Iterator for IntoIter<T> {
 	type Item = T;
 	fn next(&mut self) -> Option<Self::Item> {
@@ -80,18 +99,26 @@ impl<T: Clone> Iterator for IntoIter<T> {
 		}
 	}
 }
+
+
 struct Iter<'a, T: 'a> {
 	stack: Vec<&'a T>,
 }
+
+
 impl<'a, T> Iterator for Iter<'a, T> {
 	type Item = &'a T;
 	fn next(&mut self) -> Option<Self::Item> {
 		self.stack.pop()
 	}
 }
+
+
 struct IterMut<'a, T: 'a> {
 	stack: Vec<&'a mut T>,
 }
+
+
 impl<'a, T> Iterator for IterMut<'a, T> {
 	type Item = &'a mut T;
 	fn next(&mut self) -> Option<Self::Item> {
@@ -99,11 +126,41 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 	}
 }
 
-fn bracket_match(bracket: &str) -> bool
-{
-	//TODO
-	true
+
+fn bracket_match(bracket: &str) -> bool {
+	let opening_brackets: [&str; 4] = ["(", "{", "[", "<"];
+	let closing_brackets: [&str; 4] = [")", "}", "]", ">"];
+	let brackets = bracket.split("")
+		.filter(|c| opening_brackets.contains(c) || closing_brackets.contains(c))
+		.collect::<Vec<&str>>();
+
+	let is_match = |a, b| match (a, b) {
+		("{", "}") => true,
+		("<", ">") => true,
+		("[", "]") => true,
+		("(", ")") => true,
+		_ => false,
+	};
+
+	let mut stack = Stack::new();
+	for c in brackets {
+		match opening_brackets.contains(&c) {
+			true => _ = stack.push(c),
+			false => match stack.peek() {
+				None => return false,
+				Some(x) => match is_match(*x, c) {
+					false => return false,
+					_ => {
+						stack.pop();
+					},
+				}
+			}
+		}
+	}
+
+	stack.is_empty()
 }
+
 
 #[cfg(test)]
 mod tests {

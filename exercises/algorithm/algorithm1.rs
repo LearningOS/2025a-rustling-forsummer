@@ -2,17 +2,19 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
+
 
 #[derive(Debug)]
 struct Node<T> {
     val: T,
     next: Option<NonNull<Node<T>>>,
 }
+
 
 impl<T> Node<T> {
     fn new(t: T) -> Node<T> {
@@ -22,6 +24,8 @@ impl<T> Node<T> {
         }
     }
 }
+
+
 #[derive(Debug)]
 struct LinkedList<T> {
     length: u32,
@@ -29,11 +33,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
+
 impl<T> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
+
 
 impl<T> LinkedList<T> {
     pub fn new() -> Self {
@@ -69,21 +75,43 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+
+	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self
+    where
+        T: Ord + Copy {
+        match (list_a.length, list_b.length) {
+            (0, 0) => return LinkedList::new(),
+            (0, _) => return list_b,
+            (_, 0) => return list_a,
+            _ => (),
+        };
+
+        let mut merged_list = LinkedList::new();
+
+        let a = (0..list_a.length as i32)
+            .map(|i| *list_a.get(i).unwrap())
+            .collect::<Vec<T>>();
+
+        let b = (0..list_b.length as i32)
+            .map(|i| *list_b.get(i).unwrap())
+            .collect::<Vec<T>>();
+
+        let mut merged_vec = vec![a, b].concat();
+        merged_vec.sort();
+
+        for v in merged_vec {
+            merged_list.add(v);
         }
+
+        merged_list.length = (list_a.length + list_b.length) as u32;
+        merged_list
 	}
 }
 
+
 impl<T> Display for LinkedList<T>
 where
-    T: Display,
-{
+    T: Display {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.start {
             Some(node) => write!(f, "{}", unsafe { node.as_ref() }),
@@ -92,10 +120,10 @@ where
     }
 }
 
+
 impl<T> Display for Node<T>
 where
-    T: Display,
-{
+    T: Display {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.next {
             Some(node) => write!(f, "{}, {}", self.val, unsafe { node.as_ref() }),
@@ -103,6 +131,7 @@ where
         }
     }
 }
+
 
 #[cfg(test)]
 mod tests {

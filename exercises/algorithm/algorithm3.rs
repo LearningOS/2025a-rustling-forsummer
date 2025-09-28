@@ -3,11 +3,29 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+
+fn sort<T>(array: &mut [T])
+where
+    T: Copy + Ord {
+    if array.len() == 0 {
+        return ()
+    }
+
+    let mut sorted = vec![array[0]];
+    for n in array[1..].iter() {
+        let insert_position = sorted.iter()
+            .position(|i| i > n);
+
+        match insert_position {
+            None => sorted.push(*n),
+            Some(p) => sorted.insert(p, *n),
+        }
+    }
+    array.swap_with_slice(sorted.as_mut_slice());
 }
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
